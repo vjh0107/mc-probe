@@ -1,0 +1,12 @@
+defaultBaseImage: cgr.dev/chainguard/static
+defaultPlatforms: [linux/amd64, linux/arm64]
+
+builds:
+  - id: mcprobe
+    main: ./cmd/mcprobe
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X main.version={{.Env.VERSION}}
+      - -X main.buildTime={{.Env.BUILD_TIME}}

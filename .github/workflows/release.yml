@@ -1,0 +1,47 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      KO_DOCKER_REPO: junhyung.cloud/library/mc-probe
+      KO_SBOM: spdx
+    steps:
+      - uses: actions/checkout@v4.3.1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5.6.0
+        with:
+          go-version: '1.26.2'
+
+      - uses: ko-build/setup-ko@v0.9
+        with:
+          version: v0.18.0
+
+      - name: Login to Harbor
+        uses: docker/login-action@v3.7.0
+        with:
+          registry: junhyung.cloud
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Publish image
+        env:
+          VERSION: ${{ github.ref_name }}
+          BUILD_TIME: ${{ github.event.head_commit.timestamp }}
+        run: |
+          ko publish \
+            --bare \
+            --tags=${VERSION#v},latest \
+            --image-label=org.opencontainers.image.version=${VERSION#v} \
+            --image-label=org.opencontainers.image.source=https://github.com/${{ github.repository }} \
+            ./cmd/mcprobe

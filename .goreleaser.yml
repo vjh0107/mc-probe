@@ -1,0 +1,52 @@
+version: 2
+
+builds:
+  - main: ./cmd/mcprobe
+    binary: mcprobe
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.buildTime={{.Date}}
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - format: tar.gz
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+
+release:
+  disable: true
+
+dockers:
+  - image_templates:
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-amd64"
+      - "junhyung.cloud/library/mc-probe:latest-amd64"
+    use: buildx
+    goarch: amd64
+    build_flag_templates:
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-arm64"
+      - "junhyung.cloud/library/mc-probe:latest-arm64"
+    use: buildx
+    goarch: arm64
+    build_flag_templates:
+      - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: "junhyung.cloud/library/mc-probe:{{ .Tag }}"
+    image_templates:
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-amd64"
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-arm64"
+  - name_template: "junhyung.cloud/library/mc-probe:latest"
+    image_templates:
+      - "junhyung.cloud/library/mc-probe:latest-amd64"
+      - "junhyung.cloud/library/mc-probe:latest-arm64"

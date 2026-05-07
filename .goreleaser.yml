@@ -1,0 +1,50 @@
+version: 2
+
+builds:
+  - id: mcprobe
+    main: ./cmd/mcprobe
+    binary: mcprobe
+    env: [CGO_ENABLED=0]
+    goos: [linux]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.buildTime={{.Date}}
+
+archives:
+  - formats: [binary]
+
+release:
+  disable: true
+
+dockers:
+  - id: mcprobe-amd64
+    image_templates:
+      - "junhyung.cloud/library/mc-probe:{{ .Version }}-amd64"
+    use: buildx
+    goarch: amd64
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY }}"
+  - id: mcprobe-arm64
+    image_templates:
+      - "junhyung.cloud/library/mc-probe:{{ .Version }}-arm64"
+    use: buildx
+    goarch: arm64
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY }}"
+
+docker_manifests:
+  - name_template: "junhyung.cloud/library/mc-probe:{{ .Version }}"
+    image_templates:
+      - "junhyung.cloud/library/mc-probe:{{ .Version }}-amd64"
+      - "junhyung.cloud/library/mc-probe:{{ .Version }}-arm64"
+  - name_template: "junhyung.cloud/library/mc-probe:latest"
+    image_templates:
+      - "junhyung.cloud/library/mc-probe:{{ .Version }}-amd64"
+      - "junhyung.cloud/library/mc-probe:{{ .Version }}-arm64"

@@ -31,7 +31,7 @@ pipeline {
             agent {
                 docker {
                     image 'goreleaser/goreleaser:v2.15.4'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.docker/config.json:/root/.docker/config.json:ro'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.docker/config.json:/root/.docker/config.json:ro --entrypoint=""'
                     reuseNode true
                 }
             }

@@ -10,7 +10,7 @@ builds:
     flags: [-trimpath]
     ldflags:
       - -s -w
-      - -X main.version={{.Version}}
+      - -X main.version={{.Tag}}
       - -X main.buildTime={{.Date}}
 
 archives:
@@ -22,29 +22,29 @@ release:
 dockers:
   - id: mcprobe-amd64
     image_templates:
-      - "junhyung.cloud/library/mc-probe:{{ .Version }}-amd64"
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-amd64"
     use: buildx
     goarch: amd64
     build_flag_templates:
       - "--platform=linux/amd64"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.version={{ .Tag }}"
       - "--label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY }}"
   - id: mcprobe-arm64
     image_templates:
-      - "junhyung.cloud/library/mc-probe:{{ .Version }}-arm64"
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-arm64"
     use: buildx
     goarch: arm64
     build_flag_templates:
       - "--platform=linux/arm64"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.version={{ .Tag }}"
       - "--label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY }}"
 
 docker_manifests:
-  - name_template: "junhyung.cloud/library/mc-probe:{{ .Version }}"
+  - name_template: "junhyung.cloud/library/mc-probe:{{ .Tag }}"
     image_templates:
-      - "junhyung.cloud/library/mc-probe:{{ .Version }}-amd64"
-      - "junhyung.cloud/library/mc-probe:{{ .Version }}-arm64"
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-amd64"
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-arm64"
   - name_template: "junhyung.cloud/library/mc-probe:latest"
     image_templates:
-      - "junhyung.cloud/library/mc-probe:{{ .Version }}-amd64"
-      - "junhyung.cloud/library/mc-probe:{{ .Version }}-arm64"
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-amd64"
+      - "junhyung.cloud/library/mc-probe:{{ .Tag }}-arm64"

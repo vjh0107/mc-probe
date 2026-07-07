@@ -1,10 +1,8 @@
-// Package mcprobe exposes mc-probe's CLI as a callable entrypoint so
-// downstream binaries (e.g. furnace's cmd/mcprobe) can embed it without
-// duplicating the kong wiring.
 package mcprobe
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/alecthomas/kong"
@@ -41,14 +39,21 @@ type StartupCmd struct{ probeFlags }
 
 func (c *StartupCmd) Run() error { return probe.Startup(c.options()) }
 
-// Run parses os.Args and dispatches to the selected probe sub-command.
-// version / buildTime are baked in by the caller via -ldflags '-X'.
 func Run(version, buildTime string) {
+	RunWithArgs(os.Args[1:], version, buildTime)
+}
+
+func RunWithArgs(args []string, version, buildTime string) {
 	var cli CLI
-	ctx := kong.Parse(&cli,
+	parser, err := kong.New(&cli,
 		kong.Name("mcprobe"),
 		kong.Description("Minecraft server probe utility."),
 		kong.Vars{"version": fmt.Sprintf("%s (built %s)", version, buildTime)},
 	)
+	if err != nil {
+		panic(err)
+	}
+	ctx, err := parser.Parse(args)
+	parser.FatalIfErrorf(err)
 	ctx.FatalIfErrorf(ctx.Run())
 }
